@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prakash Fitness Tracker</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: url('https://images.unsplash.com/photo-1579758629939-037fdd6a7a9d') center/cover no-repeat;
+            position: relative;
+            height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: -1;
+        }
+
+        .wrapper {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            margin: 0 auto;
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        h1 {
+            color: #ff4b91;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .input-group {
+            text-align: left;
+            margin: 10px 0;
+        }
+
+        label {
+            font-size: 14px;
+            display: block;
+            margin-bottom: 5px;
+            color: #222;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn {
+            background: linear-gradient(90deg, #ff4b91, #ff7eb3);
+            color: #fff;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #65d9ff, #ff7eb3);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 420px;
+            color: white;
+            animation: grandShow 0.4s ease-out;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .close-btn {
+            float: right;
+            font-size: 20px;
+            cursor: pointer;
+            color: white;
+        }
+
+        #resultText {
+            white-space: pre-line;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        @keyframes grandShow {
+            0% { transform: scale(0.7) rotate(-5deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="card">
+            <h1>🏋️ Prakash Fitness Tracker</h1>
+            <p class="subtitle">Track BMI, calories & get expert tips!</p>
+            <form id="fitnessForm">
+                <div class="input-group">
+                    <label for="weight">Weight (kg):</label>
+                    <input type="number" id="weight" required>
+                </div>
+                <div class="input-group">
+                    <label for="height">Height (m):</label>
+                    <input type="number" step="0.01" id="height" required>
+                </div>
+                <div class="input-group">
+                    <label for="age">Age:</label>
+                    <input type="number" id="age" required>
+                </div>
+                <div class="input-group">
+                    <label for="gender">Gender:</label>
+                    <select id="gender">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="activity">Activity Level:</label>
+                    <select id="activity">
+                        <option value="Sedentary">Sedentary</option>
+                        <option value="Lightly Active">Lightly Active</option>
+                        <option value="Moderately Active">Moderately Active</option>
+                        <option value="Very Active">Very Active</option>
+                        <option value="Super Active">Super Active</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="goal">Fitness Goal:</label>
+                    <select id="goal">
+                        <option value="Maintain Weight">Maintain Weight</option>
+                        <option value="Weight Loss">Weight Loss</option>
+                        <option value="Muscle Gain">Muscle Gain</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Calculate</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>🎉 Your Fitness Report</h2>
+            <p id="resultText"></p>
+        </div>
+    </div>
+
+    <script>
+        const tips = [
+            "💧 Drink 2-3 liters of water daily for better metabolism.",
+            "🏃‍♂️ A 30-minute brisk walk boosts energy and mood.",
+            "🥦 Add green veggies to your meals for better digestion.",
+            "💤 Sleep 7-8 hours every night for recovery.",
+            "⚡ Eat protein-rich snacks like nuts or eggs.",
+            "🍋 Start your day with warm lemon water.",
+            "🏋️‍♀️ Strength training 2-3 times a week improves bone health.",
+            "📅 Track your fitness progress weekly.",
+            "😊 Stress less – mental health matters too!"
+        ];
+
+        document.getElementById("fitnessForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            let weight = parseFloat(document.getElementById("weight").value);
+            let height = parseFloat(document.getElementById("height").value);
+            let age = parseInt(document.getElementById("age").value);
+            let gender = document.getElementById("gender").value;
+            let activity = document.getElementById("activity").value;
+            let goal = document.getElementById("goal").value;
+
+            if (isNaN(weight) || isNaN(height) || isNaN(age)) {
+                alert("Please fill all fields correctly.");
+                return;
+            }
+
+            let bmi = weight / (height * height);
+            let bmiCat = bmi < 18.5 ? "Underweight" : bmi < 24.9 ? "Normal" : bmi < 29.9 ? "Overweight" : "Obese";
+
+            let bmr = gender === "Male"
+                ? 88.36 + (13.4 * weight) + (4.8 * height * 100) - (5.7 * age)
+                : 447.6 + (9.2 * weight) + (3.1 * height * 100) - (4.3 * age);
+
+            const activityLevels = {
+                "Sedentary": 1.2,
+                "Lightly Active": 1.375,
+                "Moderately Active": 1.55,
+                "Very Active": 1.725,
+                "Super Active": 1.9
+            };
+
+            let calories = bmr * (activityLevels[activity] || 1.2);
+
+            let mainTip = "";
+            if (goal === "Weight Loss") mainTip = "💡 Focus on a calorie deficit & regular cardio.";
+            else if (goal === "Muscle Gain") mainTip = "💡 Eat a calorie surplus with high protein.";
+            else mainTip = "💡 Maintain balanced meals & moderate exercise.";
+
+            let randomTip = tips[Math.floor(Math.random() * tips.length)];
+
+            document.getElementById("resultText").innerText =
+                `Your BMI: ${bmi.toFixed(2)} (${bmiCat})\n` +
+                `Daily Calorie Needs: ${Math.round(calories)} kcal\n\n` +
+                `${mainTip}\n⭐ ${randomTip}`;
+
+            document.getElementById("resultModal").style.display = "flex";
+        });
+
+        document.querySelector(".close-btn").addEventListener("click", function () {
+            document.getElementById("resultModal").style.display = "none";
+        });
+    </script>
+</body>
+</html>
